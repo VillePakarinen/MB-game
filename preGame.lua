@@ -28,8 +28,13 @@ function scene:create( event )
     local sceneGroup = self.view
     -- Code here runs when the scene is first created but has not yet appeared on screen
 
+    --Background
+    local bg = display.newImageRect("img/sky.png",display.contentWidth*2,display.contentHeight-display.screenOriginY)
+    bg.x = display.contentCenterX
+    bg.y = display.contentCenterY
+
     --Lets create logo text here
-    local logo = display.newText( "Tasoloikka-peli", display.contentCenterX, display.contentCenterY - 20, native.systemFont, 30 )
+    local logo = display.newText( "Simple Platformer", display.contentCenterX, display.contentCenterY - 20, native.systemFont, 30 )
     logo:setFillColor( 1, 1, 1 )
 
     --Add button to move us into the game
@@ -49,6 +54,7 @@ function scene:create( event )
     playButton.y = logo.y + 60
 
     --Add graohics to the sceneGroup
+    sceneGroup:insert(bg)
     sceneGroup:insert(logo)
     sceneGroup:insert(playButton)
 
