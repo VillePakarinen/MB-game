@@ -17,7 +17,7 @@ local camera = perspective.createView()
 
 --Set up stuff for the game
 local hero
-local game
+local game = true
 local goal
 local time
 
@@ -45,11 +45,10 @@ function scene:create( event )
     physics.setGravity( 0, 30 )
     physics.setDrawMode("normal")
 
-    game = true
 
     --Load the map
     local mapData = json.decodeFile(system.pathForFile("map/level.json", system.ResourceDirectory))  -- load from json export
-    local map = tiled.new(mapData, "map/")
+    local map = tiled.new(mapData, "map")
 
     --Find objects from the map
     hero = map:findObject("hero")
@@ -58,9 +57,10 @@ function scene:create( event )
     --Add timer to the left corner
     time = display.newText(0,0,20)
 
+
     --add items to camera
     camera:add(hero,l, true)
-    camera:add(map,6,false)
+    camera:add(map,5,false)
 
     --Set camera bounds
     camera:setBounds(display.contentWidth/2,map.designedWidth-display.contentWidth/2-80,0,map.designedHeight-160)
@@ -96,7 +96,7 @@ local function onEnterFrame()
     hero:applyForce( 10, 0, hero.x,hero.y)
   end
 
-  if hero.y > 600 then
+  if hero.y > 700 then
     hero:setLinearVelocity( 0, 0 )
     hero.x = 32
     hero.y = 400
@@ -114,14 +114,19 @@ end
 -- -- Function for screen touch
 -- -------------------------------------------
 local function onScreenTouch(event)
-    if event.x < display.actualContentWidth/2 then
+
+  --Divide the screen and make it so that u cant touch both sides at once
+  local left = display.actualContentWidth/2 + display.screenOriginX + 5
+  local right = display.actualContentWidth/2 + display.screenOriginX - 5
+
+    if event.x < left then
       if event.phase == "began" then
         print("You clicked left")
         hero.isMovingLeft = true
       elseif event.phase == "ended" then
           hero.isMovingLeft = false
       end
-    else
+    elseif right then
       if event.phase == "began" then
         print("You clicked right")
         hero.isMovingRight = true
@@ -186,6 +191,7 @@ function scene:show( event )
         camera:track()
         --Make hero able to jump after the creation
         hero.canJump = true
+        game = true
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
@@ -211,6 +217,8 @@ function scene:hide( event )
 
     if ( phase == "will" ) then
       --Code here runs when the scene is on screen (but is about to go off screen)
+
+      --Send time to next scene and hide timer
       composer.setVariable("time",time.text)
       time.isVisible = false
 
