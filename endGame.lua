@@ -5,10 +5,17 @@ local widget = require( "widget" )
 local scene = composer.newScene()
 
 local yourTime
+local yourScore
+local totalScoreTxt
 local time = ""
+local score = ""
+local totalScore = ""
+
+
 local prevScene = composer.getSceneName( "previous" )
     if prevScene == "game" then
       time = composer.getVariable("time")
+      score = composer.getVariable("score")
     end
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -74,12 +81,20 @@ function scene:create( event )
     bg.y = display.contentCenterY
 
     --Lets create endgame text here
-    local endText = display.newText( "Great Job!", display.contentCenterX, display.contentCenterY - 80, native.systemFont, 30 )
+    local endText = display.newText( "Great Job!", display.contentCenterX, display.contentCenterY - 100, native.systemFont, 30 )
     endText:setFillColor( 1, 1, 1 )
 
-    --Display score
+    --Display time
     yourTime = display.newText( "Your time: " .. time, display.contentCenterX, endText.y + 40, native.systemFont, 30 )
     yourTime:setFillColor( 1, 1, 1 )
+
+    yourScore = display.newText( "Your Score: " .. score, display.contentCenterX, yourTime.y + 40, native.systemFont, 30 )
+    yourScore:setFillColor( 1, 1, 1 )
+
+    totalScoreTxt = display.newText(totalScore,display.contentCenterX,yourScore.y+60,native.systemFont, 35)
+    totalScoreTxt:setFillColor(1,1,1)
+
+
 
 
     --Add button to move us into the game
@@ -112,9 +127,9 @@ function scene:create( event )
 
 
     playAgainButton.x = display.contentCenterX - display.contentCenterX/2
-    playAgainButton.y = yourTime.y + 80
+    playAgainButton.y = totalScoreTxt.y + 80
     highscoreButton.x = display.contentCenterX + display.contentCenterX/2
-    highscoreButton.y = yourTime.y + 80
+    highscoreButton.y = totalScoreTxt.y + 80
 
 
 
@@ -123,6 +138,8 @@ function scene:create( event )
     sceneGroup:insert(bg)
     sceneGroup:insert(endText)
     sceneGroup:insert(yourTime)
+    sceneGroup:insert(yourScore)
+    sceneGroup:insert(totalScoreTxt)
     sceneGroup:insert(playAgainButton)
     sceneGroup:insert(highscoreButton)
 
@@ -142,22 +159,26 @@ function scene:show( event )
       local prevScene = composer.getSceneName( "previous" )
           if prevScene == "game" then
             time = composer.getVariable("time")
+            score = composer.getVariable("score")
             yourTime.text = "Your time: " .. time
+            yourScore.text = "Your score: " .. score
+            totalScore = score-time
+            totalScoreTxt.text = totalScore
           end
 
 
           ------------------------
           --This is for wrting the game score into a file
           ------------------------
-          if time ~= nil then
+          if totalScore ~= nil then
             local highscoreList = readFromFile()
             local top = 5
             local count = table.maxn(highscoreList)
 
             if count < top then
-              local writer = saveToFile(time,"a")
+              local writer = saveToFile(totalScore,"a")
             else
-              table.insert(highscoreList,tonumber(time))
+              table.insert(highscoreList,tonumber(totalScore))
               table.sort(highscoreList)
 
               --Check that file always has only 5 scores
@@ -201,6 +222,8 @@ function scene:hide( event )
     elseif ( phase == "did" ) then
         -- Code here runs immediately after the scene goes entirely off screen
         time = nil
+        score = nil
+        totalScore = nil
 
     end
 end

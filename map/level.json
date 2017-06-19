@@ -522,31 +522,150 @@
          "name":"hero",
          "objects":[
                 {
-                 "gid":1,
-                 "height":45,
-                 "id":21,
-                 "name":"hero",
+                 "height":50,
+                 "id":26,
+                 "name":"heroLocation",
                  "properties":
                     {
-                     "bodyType":"dynamic",
-                     "density":0.25,
-                     "friction":"1",
-                     "isFixedRotation":true
+                     "isVisible":false
                     },
                  "propertytypes":
                     {
-                     "bodyType":"string",
-                     "density":"float",
-                     "friction":"string",
-                     "isFixedRotation":"bool"
+                     "isVisible":"bool"
                     },
                  "rotation":0,
                  "type":"",
                  "visible":true,
-                 "width":43,
-                 "x":2607,
-                 "y":484
+                 "width":49,
+                 "x":83,
+                 "y":466
                 }],
+         "opacity":1,
+         "type":"objectgroup",
+         "visible":true,
+         "x":0,
+         "y":0
+        }, 
+        {
+         "draworder":"topdown",
+         "name":"Points",
+         "objects":[
+                {
+                 "height":30,
+                 "id":37,
+                 "name":"",
+                 "properties":
+                    {
+                     "isVisible":false
+                    },
+                 "propertytypes":
+                    {
+                     "isVisible":"bool"
+                    },
+                 "rotation":0,
+                 "type":"coin",
+                 "visible":true,
+                 "width":27,
+                 "x":450,
+                 "y":288
+                }, 
+                {
+                 "height":30,
+                 "id":38,
+                 "name":"",
+                 "properties":
+                    {
+                     "isVisible":false
+                    },
+                 "propertytypes":
+                    {
+                     "isVisible":"bool"
+                    },
+                 "rotation":0,
+                 "type":"coin",
+                 "visible":true,
+                 "width":27,
+                 "x":595.5,
+                 "y":478
+                }, 
+                {
+                 "height":30,
+                 "id":39,
+                 "name":"",
+                 "properties":
+                    {
+                     "isVisible":false
+                    },
+                 "propertytypes":
+                    {
+                     "isVisible":"bool"
+                    },
+                 "rotation":0,
+                 "type":"coin",
+                 "visible":true,
+                 "width":27,
+                 "x":1085.5,
+                 "y":302
+                }, 
+                {
+                 "height":30,
+                 "id":40,
+                 "name":"",
+                 "properties":
+                    {
+                     "isVisible":false
+                    },
+                 "propertytypes":
+                    {
+                     "isVisible":"bool"
+                    },
+                 "rotation":0,
+                 "type":"coin",
+                 "visible":true,
+                 "width":27,
+                 "x":1535.5,
+                 "y":471
+                }, 
+                {
+                 "height":30,
+                 "id":41,
+                 "name":"",
+                 "properties":
+                    {
+                     "isVisible":false
+                    },
+                 "propertytypes":
+                    {
+                     "isVisible":"bool"
+                    },
+                 "rotation":0,
+                 "type":"coin",
+                 "visible":true,
+                 "width":27,
+                 "x":2065.5,
+                 "y":490
+                }, 
+                {
+                 "height":30,
+                 "id":43,
+                 "name":"",
+                 "properties":
+                    {
+                     "isVisible":false
+                    },
+                 "propertytypes":
+                    {
+                     "isVisible":"bool"
+                    },
+                 "rotation":0,
+                 "type":"coin",
+                 "visible":true,
+                 "width":27,
+                 "x":2720.5,
+                 "y":448
+                }],
+         "offsetx":32,
+         "offsety":0,
          "opacity":1,
          "type":"objectgroup",
          "visible":true,
@@ -564,7 +683,7 @@
          "x":0,
          "y":0
         }],
- "nextobjectid":24,
+ "nextobjectid":44,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.0.1",

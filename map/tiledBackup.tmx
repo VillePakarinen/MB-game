@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.0.1" orientation="orthogonal" renderorder="right-down" width="100" height="20" tilewidth="32" tileheight="32" nextobjectid="25">
+<map version="1.0" tiledversion="1.0.1" orientation="orthogonal" renderorder="right-down" width="100" height="20" tilewidth="32" tileheight="32" nextobjectid="44">
  <tileset firstgid="1" name="Hero" tilewidth="43" tileheight="57" tilecount="1" columns="0">
   <grid orientation="orthogonal" width="1" height="1"/>
   <tile id="0">
@@ -235,12 +235,41 @@
 </data>
  </layer>
  <objectgroup name="hero">
-  <object id="24" name="hero" x="2564" y="458" width="43" height="46">
+  <object id="26" name="heroLocation" x="83" y="466" width="49" height="50">
    <properties>
-    <property name="bodyType" value="dynamic"/>
-    <property name="density" type="float" value="0.25"/>
-    <property name="friction" value="1"/>
-    <property name="isFixedRotation" type="bool" value="true"/>
+    <property name="isVisible" type="bool" value="false"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup name="Points" offsetx="32" offsety="0">
+  <object id="37" type="coin" x="450" y="288" width="27" height="30">
+   <properties>
+    <property name="isVisible" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="38" type="coin" x="595.5" y="478" width="27" height="30">
+   <properties>
+    <property name="isVisible" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="39" type="coin" x="1085.5" y="302" width="27" height="30">
+   <properties>
+    <property name="isVisible" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="40" type="coin" x="1535.5" y="471" width="27" height="30">
+   <properties>
+    <property name="isVisible" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="41" type="coin" x="2065.5" y="490" width="27" height="30">
+   <properties>
+    <property name="isVisible" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="43" type="coin" x="2720.5" y="448" width="27" height="30">
+   <properties>
+    <property name="isVisible" type="bool" value="false"/>
    </properties>
   </object>
  </objectgroup>

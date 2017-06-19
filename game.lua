@@ -20,9 +20,27 @@ local hero
 local game = true
 local goal
 local time
+local points
 
+--Load spritesheets
+local HeroSheetData1 = { width = 64, height= 64, numFrames = 8, sheetContentWidth=192, sheetContentHeight=192 }
+local HeroSpriteSheet1 = graphics.newImageSheet("map/hero/SPR_M_TRAVELER_WALK_ANIM.png" , HeroSheetData1)
 
+local HeroSheetData2 = { width=64, height=64, numFrames=8, sheetContentWidth=192, sheetContentHeight=192 }
+local HeroSpriteSheet2 = graphics.newImageSheet( "map/hero/SPR_M_TRAVELER_IDLE_ANIM.png", HeroSheetData2 )
 
+local CoinSheetData = { width = 152, height= 150, numFrames = 8, sheetContentWidth=456, sheetContentHeight=450 }
+local CoinSpriteSheet = graphics.newImageSheet("map/points/COIN.png" , CoinSheetData)
+
+local HeroSequenceData =
+{
+  {name = "run", sheet=HeroSpriteSheet1, frames={1,2,3,4,5,6,7,8}, time=1000, loopCount=0 },
+  {name = "idle", sheet=HeroSpriteSheet2, frames={1,2,3,4,5,6,7,8}, time=1000, loopCount=0 },
+}
+
+local CoinSequenceData = {
+  {name = "rotate", sheet=CoinSpriteSheet, frames={1,2,3,4,5,6,7,8}, time=1000, loopCount=0 }
+}
 
 -- -----------------------------------------------------------------------------------
 -- Code outside of the scene event functions below will only be executed ONCE unless
@@ -50,16 +68,49 @@ function scene:create( event )
     local mapData = json.decodeFile(system.pathForFile("map/level.json", system.ResourceDirectory))  -- load from json export
     local map = tiled.new(mapData, "map")
 
-    --Find objects from the map
-    hero = map:findObject("hero")
+    --Find hero from the map
+    local heroSettings = map:findObject("heroLocation")
+
+    --Make visuals for the hero
+    hero = display.newSprite (HeroSpriteSheet2, HeroSequenceData)
+    hero:play()
+
+    local offsetRectParams = { halfWidth=20, halfHeight=22, x=0, y=10}
+    physics.addBody( hero, "dynamic", { density=0.28, friction=1,  box=offsetRectParams } )
+    hero.isFixedRotation = true
+    hero.x = heroSettings.x
+    hero.y = heroSettings.y
+
+    --Make coins
+    local coins = map:listTypes( "coin" )
+    local coinGroup = display.newGroup()
+
+    for i = 1,#coins do
+      coin = display.newSprite (CoinSpriteSheet, CoinSequenceData)
+      coin:play()
+
+      coin.name = "coin"
+      coin.x = coins[i].x
+      coin.y = coins[i].y
+      coin:scale(0.5,0.5)
+
+      local coinSize = { halfWidth=20, halfHeight=22, x=0, y=0}
+      physics.addBody( coin, "static", { isSensor = true, box=coinSize } )
+
+      coinGroup:insert(coin)
+    end
+
+    --Find goal
     goal = map:findObject("goal")
 
     --Add timer to the left corner
     time = display.newText(0,0,20)
+    points = display.newText(0,display.contentWidth-20,20)
 
 
     --add items to camera
     camera:add(hero,l, true)
+    camera:add(coinGroup,2,false)
     camera:add(map,5,false)
 
     --Set camera bounds
@@ -68,15 +119,17 @@ function scene:create( event )
     --Add items to scene
     sceneGroup:insert(camera)
     sceneGroup:insert(time)
-
-
-
     --End create scene
 end
 
 
-
-
+-----------------------------------------
+--Function for hero animation
+-----------------------------------------
+local function playSheet(param)
+  hero:setSequence(param)
+  hero:play()
+end
 
 -----------------------------------------
 --Function for moving the hero and other hero interactions
@@ -107,9 +160,8 @@ local function onEnterFrame()
   end
 --End enterframe
 end
---
---
---
+
+
 -- -------------------------------------------
 -- -- Function for screen touch
 -- -------------------------------------------
@@ -123,15 +175,19 @@ local function onScreenTouch(event)
       if event.phase == "began" then
         print("You clicked left")
         hero.isMovingLeft = true
-      elseif event.phase == "ended" then
+        playSheet("run")
+      elseif event.phase == "ended" or event.phase  == "moved"  then
           hero.isMovingLeft = false
+          playSheet("idle")
       end
     elseif right then
       if event.phase == "began" then
         print("You clicked right")
         hero.isMovingRight = true
-      elseif event.phase == "ended" then
+        playSheet("run")
+      elseif event.phase == "ended" or event.phase  == "moved" then
         hero.isMovingRight = false
+        playSheet("idle")
       end
   end
 -- end screen touch
@@ -151,7 +207,19 @@ local function tapListener( event )
     return true
 --end screen tap
 end
---
+
+-------------------------------------------
+--Score function
+-------------------------------------------
+local function addScore()
+  local score = points.text
+  points.text = score + 20
+
+  local sound = audio.loadSound( "sounds/NFF-coin-04.wav" )
+  audio.setVolume( 0.1 )
+  local play = audio.play(sound)
+end
+
 -- -------------------------------------------
 -- --hero collision and end game
 -- -------------------------------------------
@@ -162,6 +230,10 @@ local function onheroCollision ( event )
     if event.other.name == "goal" then
       print("Hero hit the goal")
       game = false
+    elseif event.other.name == "coin" then
+      print("Coin collected")
+      event.other:removeSelf()
+      addScore()
     end
 end
   return true
@@ -176,6 +248,7 @@ local function addTime ()
   time.text = 1 + timer
 --end timer
 end
+
 
 
 
@@ -220,7 +293,9 @@ function scene:hide( event )
 
       --Send time to next scene and hide timer
       composer.setVariable("time",time.text)
+      composer.setVariable("score",points.text)
       time.isVisible = false
+      points.isVisible = false
 
       --Stop auto-tracking
       camera:cancel()
