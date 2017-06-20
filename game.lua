@@ -21,6 +21,9 @@ local game = true
 local goal
 local time
 local points
+local backgrondMusic
+local introText
+
 
 --Load spritesheets
 local HeroSheetData1 = { width = 64, height= 64, numFrames = 8, sheetContentWidth=192, sheetContentHeight=192 }
@@ -104,20 +107,53 @@ function scene:create( event )
     goal = map:findObject("goal")
 
     --Add timer to the left corner
-    time = display.newText(0,0,20)
-    points = display.newText(0,display.contentWidth-20,20)
+    time = display.newText(0,10,20)
+    time_icon = display.newImageRect("img/clock.png",20,20)
+    time_icon.x = time.x-30
+    time_icon.y = time.y
+    time_icon.isVisible = false
 
+    --Add points to right corner
+    points = display.newText(0,display.contentWidth-20,20)
+    points_icon = display.newImageRect("img/coin_icon.png",20,20)
+    points_icon.x = points.x-30
+    points_icon.y = time.y
+    points.isVisible = false
+    points_icon.isVisible = false
+
+    --Make bg sound
+    local backgroundMusicFile = audio.loadStream("sounds/bgMusic.mp3")
+    local options = {channel = 3, loops = -1, fadein = 2000 }
+    audio.setVolume( 0.4, { channel=3 } )
+    backgrondMusic = audio.play(backgroundMusicFile,options)
+
+
+    --Intro text
+    local introOptions =
+    {
+        text = "Young traveler is looking for his uncels tent in the wilderness\n\nCollect all the coins and make haste!!",
+        x = hero.x+60,
+        y = hero.y-50,
+        width = 300,
+        font = "go3v2.ttf",
+        fontSize = 18,
+        align = "left"  -- Alignment parameter
+    }
+    introText = display.newText( introOptions )
 
     --add items to camera
     camera:add(hero,l, true)
     camera:add(coinGroup,2,false)
+    camera:add(introText,3,false)
     camera:add(map,5,false)
 
     --Set camera bounds
-    camera:setBounds(display.contentWidth/2,map.designedWidth-display.contentWidth/2-80,0,map.designedHeight-160)
+    camera:setBounds(display.contentWidth/2-display.screenOriginX/2,map.designedWidth-display.contentWidth/2-80,0,map.designedHeight-160)
 
     --Add items to scene
     sceneGroup:insert(camera)
+    sceneGroup:insert(time_icon)
+    sceneGroup:insert(points_icon)
     sceneGroup:insert(time)
     --End create scene
 end
@@ -168,25 +204,36 @@ end
 local function onScreenTouch(event)
 
   --Divide the screen and make it so that u cant touch both sides at once
-  local left = display.actualContentWidth/2 + display.screenOriginX + 5
-  local right = display.actualContentWidth/2 + display.screenOriginX - 5
+  local center = display.actualContentWidth/2 + display.screenOriginX
 
-    if event.x < left then
+    if event.x < center then
       if event.phase == "began" then
         print("You clicked left")
         hero.isMovingLeft = true
         playSheet("run")
-      elseif event.phase == "ended" or event.phase  == "moved"  then
+      elseif event.phase == "moved" then
+        if event.x > center then
+          hero.isMovingRight = true
+          hero.isMovingleft = false
+        end
+      elseif event.phase == "ended" then
           hero.isMovingLeft = false
+          hero.isMovingRight = false
           playSheet("idle")
       end
-    elseif right then
+    else
       if event.phase == "began" then
         print("You clicked right")
         hero.isMovingRight = true
         playSheet("run")
-      elseif event.phase == "ended" or event.phase  == "moved" then
+      elseif event.phase == "moved" then
+        if event.x < center then
+          hero.isMovingRight = false
+          hero.isMovingleft = true
+        end
+      elseif event.phase == "ended" then
         hero.isMovingRight = false
+        hero.isMovingLeft = false
         playSheet("idle")
       end
   end
@@ -213,29 +260,39 @@ end
 -------------------------------------------
 local function addScore()
   local score = points.text
-  points.text = score + 20
+  --One coin is x points
+  points.text = score + 40
 
   local sound = audio.loadSound( "sounds/NFF-coin-04.wav" )
-  audio.setVolume( 0.1 )
-  local play = audio.play(sound)
+  audio.setVolume( 0.08, { channel=1 } )
+  local play = audio.play(sound, {channel = 1})
 end
 
 -- -------------------------------------------
--- --hero collision and end game
+--hero collision and end game
 -- -------------------------------------------
 local function onheroCollision ( event )
   if ( event.phase == "began" ) then
-    print("Hit")
+    if event.other.name == "ground" then
     hero.canJump = true
-    if event.other.name == "goal" then
+    elseif event.other.name == "goal" then
       print("Hero hit the goal")
       game = false
+    elseif event.other.name == "water" then
+      local sound = audio.loadSound( "sounds/water.wav" )
+      audio.setVolume( 1 , {channel = 2})
+      local play = audio.play(sound, {channel = 2})
     elseif event.other.name == "coin" then
       print("Coin collected")
       event.other:removeSelf()
       addScore()
     end
-end
+  elseif event.phase == "ended" then
+      if event.other.name == "intro" then
+        --introText.isVisible = false
+        transition.to( introText, { time=1500, alpha=0} )
+      end
+    end
   return true
 --end hero collision
 end
@@ -265,10 +322,14 @@ function scene:show( event )
         --Make hero able to jump after the creation
         hero.canJump = true
         game = true
+        audio.resume(backgrondMusic)
 
     elseif ( phase == "did" ) then
         -- Code here runs when the scene is entirely on screen
         myTimer = timer.performWithDelay(1000,addTime,0)
+        points.isVisible = true
+        time_icon.isVisible = true
+        points_icon.isVisible = true
 
 
         --Event listeners
@@ -296,6 +357,8 @@ function scene:hide( event )
       composer.setVariable("score",points.text)
       time.isVisible = false
       points.isVisible = false
+      audio.stop(backgrondMusic)
+
 
       --Stop auto-tracking
       camera:cancel()
@@ -318,7 +381,6 @@ function scene:destroy( event )
 
     local sceneGroup = self.view
     -- Code here runs prior to the removal of scene's view
-
 end
 
 -- -----------------------------------------------------------------------------------

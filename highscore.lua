@@ -66,11 +66,8 @@ function scene:create( event )
     scoreBg.y = display.contentHeight/2
 
     --Lets create bestScores text here
-    bestScores = display.newText( "Best Scores", display.contentCenterX/2.4, 50, native.systemFont, 30 )
+    bestScores = display.newText( "Highscores", display.contentCenterX/2.4, 50, native.systemFont, 30 )
     bestScores:setFillColor( 0, 0, 0 )
-
-    --Get highscores and sort them
-
 
 
 
